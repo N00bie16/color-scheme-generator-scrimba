@@ -1,27 +1,79 @@
 import ColorSchema from "@/components/ColorSchema";
+import { useState } from "react";
+
+interface ColorItem {
+  hex: {
+    value: string;
+    clean: string;
+  };
+}
 
 function App() {
+  const [colorSchema, setColorSchema] = useState([]);
+  const [color, setColor] = useState("");
+  const [schema, setSchema] = useState("");
+
+  const cleanHex = color.replace("#", "");
+
+  const url = `https://www.thecolorapi.com/scheme?hex=${cleanHex}&format=json&mode=${schema}&count=5`;
+
+  const fetchData = async () => {
+    try {
+      const res = await fetch(url);
+
+      if (!res.ok) {
+        throw new Error("can't fetch data");
+      }
+
+      const data = await res.json();
+      const hexColor = data.colors.map((item: ColorItem) => item.hex);
+      setColorSchema(hexColor);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setColor(e.target.value);
+  };
+
+  const handleSchemaChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSchema(e.target.value);
+  };
+
   return (
     <section className="bg-white p-4">
       <header className="flex gap-2">
         <div>
-          <input type="color" className="m-auto w-12 h-10" />
+          <input
+            type="color"
+            value={color}
+            onChange={handleColorChange}
+            className="m-auto w-12 h-10"
+          />
         </div>
-        <select className="border border-gray-300 rounded-md shadow h-8 m-auto capitalize">
-          <option>monochrome</option>
-          <option>monochrome-dark</option>
-          <option>monochrome-light</option>
-          <option>analogic</option>
-          <option>complement</option>
-          <option>analogic-complement</option>
-          <option>triad</option>
-          <option>quad</option>
+        <select
+          value={schema}
+          onChange={handleSchemaChange}
+          className="border border-gray-300 rounded-md shadow h-8 m-auto capitalize"
+        >
+          <option value={"monochrome"}>monochrome</option>
+          <option value={"monochrome-dark"}>monochrome-dark</option>
+          <option value={"monochrome-light"}>monochrome-light</option>
+          <option value={"analogic"}>analogic</option>
+          <option value={"complement"}>complement</option>
+          <option value={"analogic-complement"}>analogic-complement</option>
+          <option value={"triad"}>triad</option>
+          <option value={"quad"}>quad</option>
         </select>
-        <button className="border border-gray-300 text-xs px-4 m-auto rounded-md shadow h-8 focus:bg-gray-300">
+        <button
+          onClick={fetchData}
+          className="border border-gray-300 text-xs px-4 m-auto rounded-md shadow h-8 focus:bg-gray-300"
+        >
           Get Color Scheme
         </button>
       </header>
-      <ColorSchema />
+      <ColorSchema schema={colorSchema} />
     </section>
   );
 }
