@@ -9,12 +9,12 @@ interface SchemaProps {
 
 export default function ColorSchema({ schema }: SchemaProps) {
   return (
-    <section className="">
+    <section>
       <div className="grid grid-cols-5 w-full text-white text-center">
         {schema.map((hex) => (
           <div
             key={hex.clean}
-            className="relative h-96"
+            className="relative h-96 md:h-164 mt-4"
             style={{ backgroundColor: hex.value }}
           >
             <p className="absolute bottom-0 w-full mx-auto bg-white text-black p-2 select-all">

@@ -1,5 +1,6 @@
 import ColorSchema from "@/components/ColorSchema";
 import { useState } from "react";
+import { motion } from "motion/react";
 
 interface ColorItem {
   hex: {
@@ -10,7 +11,7 @@ interface ColorItem {
 
 function App() {
   const [colorSchema, setColorSchema] = useState([]);
-  const [color, setColor] = useState("");
+  const [color, setColor] = useState("#f20707");
   const [schema, setSchema] = useState("");
 
   const cleanHex = color.replace("#", "");
@@ -42,20 +43,20 @@ function App() {
   };
 
   return (
-    <section className="bg-white p-4">
-      <header className="flex gap-2">
+    <section className="bg-white p-4 mt-2 md:max-w-6xl md:mx-auto">
+      <header className="flex gap-2 md:w-full md:justify-between md:px-4">
         <div>
           <input
             type="color"
             value={color}
             onChange={handleColorChange}
-            className="m-auto w-12 h-10"
+            className="m-auto w-12 h-10 md:w-18 md:h-12"
           />
         </div>
         <select
           value={schema}
           onChange={handleSchemaChange}
-          className="border border-gray-300 rounded-md shadow h-8 m-auto capitalize"
+          className="border border-gray-300 px-2 rounded-md shadow h-8 m-auto capitalize md:m-0 md:w-96 md:text-lg"
         >
           <option value={"monochrome"}>monochrome</option>
           <option value={"monochrome-dark"}>monochrome-dark</option>
@@ -66,12 +67,14 @@ function App() {
           <option value={"triad"}>triad</option>
           <option value={"quad"}>quad</option>
         </select>
-        <button
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
           onClick={fetchData}
-          className="border border-gray-300 text-xs px-4 m-auto rounded-md shadow h-8 focus:bg-gray-300"
+          className="border border-gray-300 text-xs px-4 m-auto rounded-md shadow h-8 md:m-0 md:text-lg"
         >
           Get Color Scheme
-        </button>
+        </motion.button>
       </header>
       <ColorSchema schema={colorSchema} />
     </section>
