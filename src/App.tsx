@@ -1,18 +1,11 @@
-import ColorSchema from "@/components/ColorSchema";
-import { useState } from "react";
+import ColorSchema, { type ColorItem } from "@/components/ColorSchema";
+import { useState, type ChangeEvent } from "react";
 import { motion } from "motion/react";
 
-interface ColorItem {
-  hex: {
-    value: string;
-    clean: string;
-  };
-}
-
 function App() {
-  const [colorSchema, setColorSchema] = useState([]);
+  const [colorSchema, setColorSchema] = useState<ColorItem[]>([]);
   const [color, setColor] = useState("#f20707");
-  const [schema, setSchema] = useState("");
+  const [schema, setSchema] = useState("monochrome");
 
   const cleanHex = color.replace("#", "");
 
@@ -23,22 +16,47 @@ function App() {
       const res = await fetch(url);
 
       if (!res.ok) {
-        throw new Error("can't fetch data");
+        throw new Error("Can't fetch data");
       }
 
-      const data = await res.json();
-      const hexColor = data.colors.map((item: ColorItem) => item.hex);
+      const data: unknown = await res.json();
+      if (
+        typeof data !== "object" ||
+        data === null ||
+        !("colors" in data) ||
+        !Array.isArray(data.colors)
+      ) {
+        throw new Error("invalid color scheme response");
+      }
+
+      const hexColor = data.colors.flatMap((item: unknown) => {
+        if (
+          typeof item !== "object" ||
+          item === null ||
+          !("hex" in item) ||
+          typeof item.hex !== "object" ||
+          item.hex === null ||
+          !("value" in item.hex) ||
+          typeof item.hex.value !== "string" ||
+          !("clean" in item.hex) ||
+          typeof item.hex.clean !== "string"
+        ) {
+          return [];
+        }
+
+        return [{ value: item.hex.value, clean: item.hex.clean }];
+      });
       setColorSchema(hexColor);
     } catch (err) {
       console.error(err);
     }
   };
 
-  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleColorChange = (e: ChangeEvent<HTMLInputElement>) => {
     setColor(e.target.value);
   };
 
-  const handleSchemaChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleSchemaChange = (e: ChangeEvent<HTMLSelectElement>) => {
     setSchema(e.target.value);
   };
 
@@ -58,19 +76,19 @@ function App() {
           onChange={handleSchemaChange}
           className="border border-gray-300 px-2 rounded-md shadow h-8 m-auto capitalize md:m-0 md:w-96 md:text-lg"
         >
-          <option value={"monochrome"}>monochrome</option>
-          <option value={"monochrome-dark"}>monochrome-dark</option>
-          <option value={"monochrome-light"}>monochrome-light</option>
-          <option value={"analogic"}>analogic</option>
-          <option value={"complement"}>complement</option>
-          <option value={"analogic-complement"}>analogic-complement</option>
-          <option value={"triad"}>triad</option>
-          <option value={"quad"}>quad</option>
+          <option value="monochrome">monochrome</option>
+          <option value="monochrome-dark">monochrome-dark</option>
+          <option value="monochrome-light">monochrome-light</option>
+          <option value="analogic">analogic</option>
+          <option value="complement">complement</option>
+          <option value="analogic-complement">analogic-complement</option>
+          <option value="triad">triad</option>
+          <option value="quad">quad</option>
         </select>
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
-          onClick={fetchData}
+          onClick={() => void fetchData()}
           className="border border-gray-300 text-xs px-4 m-auto rounded-md shadow h-8 md:m-0 md:text-lg"
         >
           Get Color Scheme

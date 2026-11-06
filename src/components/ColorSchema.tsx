@@ -1,4 +1,4 @@
-interface ColorItem {
+export interface ColorItem {
   value: string;
   clean: string;
 }
